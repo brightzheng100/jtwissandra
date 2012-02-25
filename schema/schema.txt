@@ -1,0 +1,43 @@
+drop keyspace JTWISSANDRA;
+
+create keyspace JTWISSANDRA
+	with placement_strategy = 'org.apache.cassandra.locator.SimpleStrategy'
+	and strategy_options = [{replication_factor:1}];
+
+use JTWISSANDRA;
+
+create column family USER
+	with comparator = UTF8Type   
+	and key_validation_class = UTF8Type
+	and default_validation_class = UTF8Type
+	and column_metadata = [
+		{column_name: user_name, validation_class: UTF8Type, 
+				   index_name:user_name_idx, index_type:KEYS }
+		{column_name: user_password, validation_class: UTF8Type}
+		{column_name: create_timestamp, validation_class: LongType,
+				   index_name:create_timestamp_idx, index_type:KEYS}
+	];
+
+create column family FRIEND
+	with comparator = LongType   
+	and key_validation_class = UTF8Type
+	and default_validation_class = UTF8Type;
+
+create column family FOLLOWER
+	with comparator = LongType   
+	and key_validation_class = UTF8Type
+	and default_validation_class = UTF8Type;
+
+create column family TWEET
+	with comparator = UTF8Type   
+	and key_validation_class = UTF8Type
+	and default_validation_class = UTF8Type
+	and column_metadata = [
+		{column_name: user_uuid, validation_class: UTF8Type}
+		{column_name: tweet_content, validation_class: UTF8Type}
+	];	
+
+create column family TIMELINE
+	with comparator = LongType   
+	and key_validation_class = UTF8Type
+	and default_validation_class = UTF8Type;
