@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
-import me.prettyprint.cassandra.service.clock.MicrosecondsClockResolution;
+import me.prettyprint.cassandra.service.clock.MicrosecondsSyncClockResolution;
 import me.prettyprint.cassandra.utils.TimeUUIDUtils;
 import me.prettyprint.hector.api.ClockResolution;
 import me.prettyprint.hector.api.Keyspace;
@@ -59,14 +59,14 @@ public class BaseService {
 	 */
 	public UUID getUUID(){
 		//TODO: which UUID should we use to make sure it's unique?
-		ClockResolution clock = new MicrosecondsClockResolution();
-	    return TimeUUIDUtils.getTimeUUID(clock);
+		ClockResolution clock = new MicrosecondsSyncClockResolution();
+		return TimeUUIDUtils.getTimeUUID(clock);
 		//return TimeUUIDUtils.getUniqueTimeUUIDinMillis();
 	}
 	
 	protected Long getTimestamp(UUID uuid){
-		//return uuid.timestamp();
-		return TimeUUIDUtils.getTimeFromUUID(uuid);
+		return uuid.timestamp();
+		//return TimeUUIDUtils.getTimeFromUUID(uuid);
 	}
 	
 	protected Long generateTimestamp(){
