@@ -53,7 +53,7 @@ public class TweetService extends BaseService{
         mutator.addInsertion(user_uuid, CF_TIMELINE, 
         		this.createColumn(timestamp, tweet_uuid));
         
-        // get back all my follower and insert the tweet to his/her TIMELINE
+        // get back all my followers and insert the tweet to his/her TIMELINE one by one
         SliceQuery<String, Long, String> sliceQuery = 
             HFactory.createSliceQuery(KEYSPACE, SERIALIZER_STRING, SERIALIZER_LONG, SERIALIZER_STRING);        
         sliceQuery.setColumnFamily(CF_FOLLOWER);
@@ -79,15 +79,35 @@ public class TweetService extends BaseService{
     }
     
     /**
-     * Should we add this service?
+     * Get one specified tweet by uuid
      * 
      * @param tweet_uuid
      * @return
      */
     public Tweet getTweet(String tweet_uuid){
-    	return null;
+    	SliceQuery<String, String, String> sliceQuery = 
+            HFactory.createSliceQuery(KEYSPACE, SERIALIZER_STRING, SERIALIZER_STRING, SERIALIZER_STRING);        
+        sliceQuery.setColumnFamily(CF_TWEET);
+        sliceQuery.setKey(tweet_uuid);
+        sliceQuery.setColumnNames("user_uuid", "tweet_content");
+        QueryResult<ColumnSlice<String, String>> result = sliceQuery.execute();
+        List<HColumn<String, String>> list = result.get().getColumns();
+        
+        HColumn<String,String> user = list.get(0);		// column of user_uuid
+        HColumn<String,String> content = list.get(1);	// column of tweet_content
+        
+    	return new Tweet(tweet_uuid, content.getValue(), user.getValue());
     }
     
+    /**
+     * Using this method to multi-get will cause sequencial issue
+     * because the tweets won't be sorted in chronological order 
+     * 
+     * @param tweet_uuids
+     * @return
+     * 
+     * @deprecated
+     */
     public List<Tweet> getTweets(List<String> tweet_uuids){
     	MultigetSliceQuery<String, String, String> multigetSlicesQuery =
             HFactory.createMultigetSliceQuery(KEYSPACE, SERIALIZER_STRING, SERIALIZER_STRING, SERIALIZER_STRING);
