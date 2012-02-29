@@ -1,8 +1,8 @@
 package bright.zheng.jtwissandra;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -88,9 +88,14 @@ public class ServiceTest{
     @Test
     public void addTweetByMe() {
 		logger.debug("=====================addTweetByMe{====================");
+		Map<String, String> tweets = new HashMap<String, String>();
 		for(int i=0; i<100; i++){
 			String tweet_uuid = SERVICE_TWEET.addTweet(me, "Hellow JTWISSANDRA -- by itstarting:" + i);
 			Assert.assertNotNull(tweet_uuid);
+			Assert.assertFalse(tweet_uuid + ":" + i, tweets.containsKey(tweet_uuid));
+			tweets.put(tweet_uuid, String.valueOf(i));
+			logger.debug("added No.{} of tweet[{}] by me:{}", 
+					new Object[]{i, tweet_uuid, me});
 		}
 		logger.debug("=====================}//addTweetByMe====================");
     }
@@ -101,10 +106,15 @@ public class ServiceTest{
      */
     @Test
     public void addTweetByFriend() {
-		logger.debug("=====================addTweetByFriend{====================");
+		logger.debug("=====================addTweetByFriend{====================");		
+		Map<String, String> tweets = new HashMap<String, String>();
 		for(int i=0; i<100; i++){
 	    	String tweet_uuid = SERVICE_TWEET.addTweet(friend, "Hellow JTWISSANDRA -- by test1:" + i);
 			Assert.assertNotNull(tweet_uuid);
+			Assert.assertFalse(tweet_uuid + ":" + i, tweets.containsKey(tweet_uuid));
+			tweets.put(tweet_uuid, String.valueOf(i));
+			logger.debug("added No.{} of tweet[{}] by friend:{}", 
+					new Object[]{i, tweet_uuid, friend});
 		}
 		logger.debug("=====================}//addTweetByFriend====================");
     }
@@ -151,6 +161,7 @@ public class ServiceTest{
 		logger.debug("=====================}//getTweetsByMyFriendForNextTimeline====================");
     }
     
+    /*
     private void getTweets(String user_uuid, long start){
     	TimelineWrapper wrapper = SERVICE_TIMELINE.getTimeline(user_uuid, start);
     	Assert.assertNotNull(wrapper);
@@ -166,6 +177,29 @@ public class ServiceTest{
     	Iterator<Tweet> it = tweets.iterator();
     	while(it.hasNext()){
     		Tweet tweet = it.next();
+    		logger.debug("From Tweet: tweet_uuid={}, tweet_content={}, user_uuid={}", 
+    				new Object[]{tweet.getTweet_uuid(), 
+    							 tweet.getTweet_content(),
+    							 tweet.getUser_uuid()
+    							});
+    	}
+    	if(wrapper.getNextTimeline() > 0L){
+    		logger.debug("The start timeline of next page is: {}", wrapper.getNextTimeline());
+    		nextTimeline = wrapper.getNextTimeline();
+    	}else{
+    		logger.debug("No next page available");
+    		nextTimeline = 0L;
+    	}
+    }*/
+    private void getTweets(String user_uuid, long start){
+    	TimelineWrapper wrapper = SERVICE_TIMELINE.getTimeline(user_uuid, start);
+    	Assert.assertNotNull(wrapper);
+    	List<Timeline> list = wrapper.getTimelines();
+    	for(Timeline timeline: list){
+    		String tweet_uuid = timeline.getTweet_uuid();
+    		logger.debug("From Timeline: tweet_uuid={}, tweet_timestamp={}", 
+    				tweet_uuid, timeline.getTweet_timestamp());
+    		Tweet tweet = SERVICE_TWEET.getTweet(tweet_uuid);
     		logger.debug("From Tweet: tweet_uuid={}, tweet_content={}, user_uuid={}", 
     				new Object[]{tweet.getTweet_uuid(), 
     							 tweet.getTweet_content(),

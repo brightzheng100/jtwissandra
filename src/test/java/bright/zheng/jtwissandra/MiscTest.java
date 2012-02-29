@@ -2,11 +2,14 @@ package bright.zheng.jtwissandra;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import junit.framework.Assert;
-
+import me.prettyprint.cassandra.service.clock.MicrosecondsSyncClockResolution;
 import me.prettyprint.cassandra.utils.TimeUUIDUtils;
+import me.prettyprint.hector.api.ClockResolution;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -80,4 +83,59 @@ public class MiscTest{
 			Thread.sleep(1 * 1000);
 		}
     }
+	
+	@Test
+	public void testDuplicateUUID1(){
+		Map<String, String> uuids = new HashMap<String, String>();
+		for(int i=0; i<100; i++){
+			UUID o = getUUID1();
+			Assert.assertNotNull("UUID is null", o);
+			String uuid = o.toString();
+			Assert.assertNotNull("UUID string is null", uuid);
+			logger.debug("No.{}, uuid={}", i, uuid);
+			Assert.assertFalse("Duplicated UUID found!", uuids.containsKey(uuid));
+			uuids.put(uuid, uuid);
+		}
+	}
+	
+	@Test
+	public void testDuplicateUUID2(){
+		Map<String, String> uuids = new HashMap<String, String>();
+		ClockResolution clock = new MicrosecondsSyncClockResolution();
+		for(int i=0; i<100; i++){
+			UUID o = getUUID2(clock);
+			Assert.assertNotNull("UUID is null", o);
+			String uuid = o.toString();
+			Assert.assertNotNull("UUID string is null", uuid);
+			logger.debug("No.{}, uuid={}", i, uuid);
+			Assert.assertFalse("Duplicated UUID found!", uuids.containsKey(uuid));
+			uuids.put(uuid, uuid);
+		}
+	}
+	
+	private UUID getUUID1(){
+		ClockResolution clock = new MicrosecondsSyncClockResolution();
+		return TimeUUIDUtils.getTimeUUID(clock);
+	}
+	
+	private UUID getUUID2(ClockResolution clock){
+		return TimeUUIDUtils.getTimeUUID(clock);
+	}
+	
+	/**
+	 * TODO: How to get back the Date from TimeUUID in Hactor? 
+	 * Still under discussion in user forum ...
+	 */
+	@Test
+	public void getDateFromTimeUUID(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss SSS");
+		UUID uuid = getUUID1();
+		logger.debug("Date from uuid.timestamp() is:{}", sdf.format(new Date(uuid.timestamp())));
+		logger.debug("Date2 from TimeUUIDUtils.getTimeFromUUID(uuid) is:{}", sdf.format(new Date(TimeUUIDUtils.getTimeFromUUID(uuid))));
+		
+		ClockResolution clock = new MicrosecondsSyncClockResolution();
+		uuid = getUUID2(clock);
+		logger.debug("Date from uuid.timestamp() is:{}", sdf.format(new Date(uuid.timestamp())));
+		logger.debug("Date2 from TimeUUIDUtils.getTimeFromUUID(uuid) is:{}", sdf.format(new Date(TimeUUIDUtils.getTimeFromUUID(uuid))));		
+	}
 }
