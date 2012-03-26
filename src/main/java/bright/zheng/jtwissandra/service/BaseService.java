@@ -53,15 +53,17 @@ public class BaseService {
 	}
 	
 	/**
-	 * REF: http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
+	 * REF: 
+	 * 1. FAQ
+	 * 		http://wiki.apache.org/cassandra/FAQ#working_with_timeuuid_in_java
+	 * 2. DISCUSSION:
+	 * 		https://groups.google.com/forum/?fromgroups#!topic/hector-users/IfABWOh0HLg
 	 * 
 	 * @return UUID
 	 */
 	public UUID getUUID(){
-		//TODO: which UUID should we use to make sure it's unique?
 		ClockResolution clock = new MicrosecondsSyncClockResolution();
 		return TimeUUIDUtils.getTimeUUID(clock);
-		//return TimeUUIDUtils.getUniqueTimeUUIDinMillis();
 	}
 	
 	protected Long getTimestamp(UUID uuid){
