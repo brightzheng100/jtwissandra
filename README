@@ -1,0 +1,57 @@
+
+=============== BRIEFING ===============
+
+This is a simple example by using common Hactor APIs to build a twitter-like data modeling.
+
+
+
+=============== TESTED ===============
+1) Apache Cassandra 1.0.7 + hector-core 1.0-2
+1) Apache Cassandra 1.0.8 + hector-core 1.0-2
+
+
+
+=============== FAQ ===============
+
+1. What are the main concepts in this example:
+
+a. USER: 
+Each user has user_name, user_password and create_timestamp columns.
+
+b. FRIEND: 
+Friend is the User you're following
+
+c. FOLLOWER: 
+Once you followed a Friend, you will be the Friend's Follower as well.
+So Friend and Follower will be created at the same time.
+
+d. TWEET: 
+Tweet is the content of twitter. 
+It has fixed columns of user_uuid and tweet_content.
+
+e. TIMELINE: 
+Timeline is the "line" of Tweets in time order.
+Each User has one Timeline and if someone creates a tweet, the tweet will be added in his and all his Followers' Timeline.
+
+For more detail schema, please refer to file of schema/schema.txt.
+
+
+2. How to test?
+Currently the example provides a simple JUnit test case named ServiceTest by which you can go through all JTwissandra ideas like:
+ - addUser
+ - followFriend
+ - followedByFollower
+ - addTweetByMe
+ - addTweetByFriend
+ - getTweetsByMe
+ - getTweetsByMeForNextTimeline
+ - getTweetsByMyFriend
+ - getTweetsByMyFriendForNextTimeline
+ 
+Before running this JUnit test, please start you Apache Cassandra server and create the schema first under CLI.
+  C:\>cd /d C:\java\apache-cassandra-1.0.8\bin
+  C:\java\apache-cassandra-1.0.8\bin>cassandra-cli
+  [default@unknown] connect localhost/9160;
+  [default@unknown] PASTE HERE ALL SCRIPTS FROM schema/schema.txt
+
+  
